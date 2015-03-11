@@ -1,0 +1,85 @@
+fullname: C GNOME 3 Template
+description: Create a basic C GNOME 3 application based in the common GNOME patterns
+project_type: [c]
+
+dependencies:
+  - rpm: ['gcc', 'automake', 'autoconf', 'gnome-common', 'glib2-devel', 'gtk3-devel']
+
+args:
+  name:
+    use: common_args
+
+files:
+  csources: &csources
+    source: .
+
+run:
+- $dirname~: $(dirname "$name")
+- $basename~: $(basename "$name" | tr '[A-Z]' '[a-z]')
+- $uppername~: $(basename "$name" | tr '[a-z]' '[A-Z]')
+- $capitalizedname~: $(python -c 'import sys; print(sys.argv[1].capitalize())' $basename)
+- log_i: "Project name will be converted to lowercase letters ($basename)"
+- $lowername: $dirname/$basename
+- if not $(ls "$lowername"):
+  - log_i: 'Copying GNOME 3 C source tree to project destination'
+  - cl: cp -r *csources "$lowername"
+  - dda_c: "$lowername"
+  - cl: cd "$lowername"
+  - $clname~: $(git config user.name)
+  - if not $clname:
+    - $clname~: $(python -c 'import pwd,posix; print pwd.getpwuid(posix.getuid()).pw_gecos')
+  - $clemail~: $(git config user.email)
+  - if not $clemail:
+    - $clemail1~: $(id -un)
+    - $clemail2~: $(uname -n)
+    - $clemail~: "$clemail1@$clemail1"
+  - cl: sed -i "s|Your Name <yourname@yoursite.com>|$clname <$clemail>|" "AUTHORS"
+  - cl: sed -i "s|app|$basename|" "autogen.sh"
+  - cl: sed -i "s|app|$basename|" "configure.ac"
+  - cl: sed -i "s|APP|$uppername|" "configure.ac"
+  - cl: sed -i "s|_Name=App|_Name=$basename|" "data/app.desktop.in.in"
+  - cl: sed -i "s|_Comment=GNOME application template|_Comment=$basename|" "data/app.desktop.in.in"
+  - cl: sed -i "s|_Keywords=app;gnome;template;|_Keywords=$lowername|" "data/app.desktop.in.in"
+  - cl: mv data/app.desktop.in.in data/$basename.desktop.in.in
+  - cl: sed -i "s|app.desktop|$basename.desktop|" "data/Makefile.am"
+  - cl: mv data/icons/hicolor_apps_16x16_app.png data/icons/hicolor_apps_16x16_$basename.png
+  - cl: mv data/icons/hicolor_apps_22x22_app.png data/icons/hicolor_apps_22x22_$basename.png
+  - cl: mv data/icons/hicolor_apps_24x24_app.png data/icons/hicolor_apps_24x24_$basename.png
+  - cl: mv data/icons/hicolor_apps_256x256_app.png data/icons/hicolor_apps_256x256_$basename.png
+  - cl: mv data/icons/hicolor_apps_32x32_app.png data/icons/hicolor_apps_32x32_$basename.png
+  - cl: mv data/icons/hicolor_apps_48x48_app.png data/icons/hicolor_apps_48x48_$basename.png
+  - cl: mv data/icons/HighContrast_apps_16x16_app.png data/icons/HighContrast_apps_16x16_$basename.png
+  - cl: mv data/icons/HighContrast_apps_22x22_app.png data/icons/HighContrast_apps_22x22_$basename.png
+  - cl: mv data/icons/HighContrast_apps_24x24_app.png data/icons/HighContrast_apps_24x24_$basename.png
+  - cl: mv data/icons/HighContrast_apps_256x256_app.png data/icons/HighContrast_apps_256x256_$basename.png
+  - cl: mv data/icons/HighContrast_apps_32x32_app.png data/icons/HighContrast_apps_32x32_$basename.png
+  - cl: mv data/icons/HighContrast_apps_48x48_app.png data/icons/HighContrast_apps_48x48_$basename.png
+  - cl: sed -i "s|app.png|$basename.png|" "data/icons/Makefile.am"
+  - cl: sed -i "s|app.desktop|$basename.desktop|" "po/POTFILES.in"
+  - cl: sed -i "s|/org/gnome/app|/org/gnome/$basename|" "src/app.gresource.xml"
+  - cl: mv src/app.gresource.xml src/$basename.gresource.xml
+  - for $filename word_in $('ls src/*.[ch]'):
+    - cl: sed -i "s|\* App|\* $capitalizedname|" "$filename"
+    - cl: sed -i "s|\* Copyright © 2015 Your name <yourname@yoursite.com>|\* Copyright © 2015 $clname <$clemail>|" "$filename"
+    - cl: sed -i "s|APP\_|$uppername\_|g" "$filename"
+    - cl: sed -i "s|app\_|$basename\_|g" "$filename"
+    - cl: sed -i "s|AppApplication|${capitalizedname}Application|g" "$filename"
+    - cl: sed -i "s|\"program-name\", \"App\"|\"program-name\", \"$basename\"|" "$filename"
+    - cl: sed -i "s|\"App\"|\"$capitalizedname\"|" "$filename"
+  - cl: sed -i "s|bin\_PROGRAMS = app|bin\_PROGRAMS = $basename|" "src/Makefile.am"
+  - cl: sed -i "s|app\_SOURCES|$basename\_SOURCES|" "src/Makefile.am"
+  - cl: sed -i "s|app\_CPPFLAGS|$basename\_CPPFLAGS|" "src/Makefile.am"
+  - cl: sed -i "s|app\_CFLAGS|$basename\_CFLAGS|" "src/Makefile.am"
+  - cl: sed -i "s|app\_LDFLAGS|$basename\_LDFLAGS|" "src/Makefile.am"
+  - cl: sed -i "s|app\_LDADD|$basename\_LDADD|" "src/Makefile.am"
+  - cl: sed -i "s|app\.gresource\.xml|$basename\.gresource\.xml|" "src/Makefile.am"
+  - cl: sed -i "s|APP\_MODULES|$uppername\_MODULES|" "src/Makefile.am"
+  - cl: rm -rf .git .gitmodules
+  - log_i: 'Initializing Git'
+  - use: git.init_add_commit.run
+  - log_i: 'Running initial Autogen'
+  - cl: ./autogen.sh
+  - log_i: 'Done. Just compile with make'
+- else:
+  - cl: cd "$lowername"
+  - log_i: 'Project already exists'

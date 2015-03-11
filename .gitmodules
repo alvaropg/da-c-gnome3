@@ -1,0 +1,3 @@
+[submodule "files/crt/gnome3"]
+	path = files/crt/gnome3
+	url = git@github.com:alvaropg/gnome-app-template.git
