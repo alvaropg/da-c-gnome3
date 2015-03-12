@@ -3,7 +3,7 @@ description: Create a basic C GNOME 3 application based in the common GNOME patt
 project_type: [c]
 
 dependencies:
-  - rpm: ['gcc', 'automake', 'autoconf', 'gnome-common', 'glib2-devel', 'gtk3-devel']
+  - rpm: ['gcc', 'automake', 'autoconf', 'gnome-common', 'glib2-devel', 'gtk3-devel', 'intltool']
 
 args:
   name:
