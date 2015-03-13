@@ -1,6 +1,7 @@
 package_name: gnome3
-version: 0.0.1dev
-license: FIXME
-summary: A fresh new DAP
-homepage: FIXME
+version: 0.0.2dev
+license: GPLv2
+summary: GNOME 3 C application assistant
+homepage: https://github.com/alvaropg/da-c-gnome3
 authors: [Álvaro Peña <alvaropg@gmail.com>]
+supported_platforms: [fedora]
