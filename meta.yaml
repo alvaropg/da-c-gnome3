@@ -1,5 +1,5 @@
 package_name: gnome3
-version: 0.0.2dev
+version: 0.0.3dev
 license: GPLv2
 summary: GNOME 3 C application assistant
 homepage: https://github.com/alvaropg/da-c-gnome3
